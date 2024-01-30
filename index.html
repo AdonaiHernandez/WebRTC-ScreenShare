@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <style>
+            .container{
+                display: flex;
+            }
+            #video{
+                flex: 1;
+                background: grey;
+            }
+            .botones{
+                display: flex;
+                flex-direction: column;
+                padding: 20px;
+            }
+            #button{
+                margin: 20px 0;
+            }
+            #codecs{
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <video id="video" autoplay controls></video>
+            <div class="botones">
+                <input type="text" placeholder="name" id="name" />
+                <button id="button">grabar</button>
+                <button id="button1">conectar</button>
+                <select id="codecs">C</select>
+            </div>
+        </div>
+        
+        <script src="./main.js"></script>
+    </body>
+</html>
