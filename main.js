@@ -4,8 +4,11 @@ botonPeer = document.getElementById("button2");
 video = document.getElementById("video");
 nombre = document.getElementById("name");
 selector = document.getElementById("codecs");
+checkbox = document.getElementById("useCodec");
 
 preferedCodec = "video/VP9";
+isChecked = false;
+availableCodecs = [];
 
 conexiones = {}
 
@@ -13,8 +16,14 @@ conexiones = {}
 window.onload = () => {
 
     let codecs = RTCRtpReceiver.getCapabilities('video').codecs;
+
+    for (i = 0; i < codecs.length; i++ ){
+        codecs[i]["payloadType"] = "dynamic";
+    }
+
+    availableCodecs = codecs;
+
     codecs.forEach((codec) => {
-        console.log(codec);
 
         let opcion = document.createElement("option");
         opcion.setAttribute("value", codec.mimeType);
@@ -25,6 +34,14 @@ window.onload = () => {
     })
 
 }
+
+checkbox.onchange = () => {
+
+    isChecked = checkbox.checked;
+    console.log(isChecked);
+
+}
+
 
 selector.onchange = () => {
 
@@ -37,13 +54,28 @@ selector.onchange = () => {
 
 rtcConfiguration = {iceServers: [
     {
-        urls: 'stun:stun.1.google.com:19302'
-    },
-    {
-      urls: "turn:relay.metered.ca:80",
-      username: "1ea74f6473caed509531ec71",
-      credential: "44XB2/aEcDFpyxlN",
-    }
+        urls: "stun:stun.relay.metered.ca:80",
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:80",
+        username: "1ea74f6473caed509531ec71",
+        credential: "44XB2/aEcDFpyxlN",
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+        username: "1ea74f6473caed509531ec71",
+        credential: "44XB2/aEcDFpyxlN",
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:443",
+        username: "1ea74f6473caed509531ec71",
+        credential: "44XB2/aEcDFpyxlN",
+      },
+      {
+        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+        username: "1ea74f6473caed509531ec71",
+        credential: "44XB2/aEcDFpyxlN",
+      }
 
 ]};
 
@@ -153,6 +185,7 @@ function startPeer(peerName){
             streams: [stream],
             sendEncodings: [
                 {
+                    priority: "high",
                     maxBitrate: 50000000,
                     maxFramerate: 60,
                     maxWidth: 1920,
@@ -160,7 +193,9 @@ function startPeer(peerName){
                 }
             ]
         });
+        
     });
+
     
     forceVP9(conexiones[peerName]);
     
@@ -320,7 +355,7 @@ function forceVP9(actPeer){
     if (!tcvr)
         return
     let codecs = RTCRtpReceiver.getCapabilities('video').codecs;
-    let vp9_codecs = [RTCRtpReceiver.getCapabilities('audio').codecs[0]];
+    let vp9_codecs = [];
     // iterate over supported codecs and pull out the codecs we want
     for(let i = 0; i < codecs.length; i++){
         if(codecs[i].mimeType == preferedCodec){
@@ -328,8 +363,8 @@ function forceVP9(actPeer){
         }
     }
 
-    if(tcvr.setCodecPreferences != undefined){
-        //tcvr.setCodecPreferences(vp9_codecs);
+    if(tcvr.setCodecPreferences != undefined && isChecked){
+        tcvr.setCodecPreferences(vp9_codecs);
     }
 
 }
