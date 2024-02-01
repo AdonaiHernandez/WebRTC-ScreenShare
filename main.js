@@ -219,7 +219,7 @@ function crearOferta(peerName) {
       .then((offer) => conexiones[peerName].setLocalDescription(offer))
       .then(() => {
         
-
+        console.log(conexiones[peerName].localDescription);
         msg = {
             type : 1,
             subtype: "video-offer",
