@@ -253,7 +253,7 @@ function recivirOferta({sdp, name, to}){
       .then(() => {
         
         console.log(conexiones[name].localDescription);
-        const actSDP  = conexiones[name].localDescription.sdp;
+        const actSDP  = conexiones[name].localDescription;
 
         msg = {
             type : 1,

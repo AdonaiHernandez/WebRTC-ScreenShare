@@ -27,11 +27,11 @@ room = {
     clients: {}
 };
 
-ws.on('listening', () => {
+ws.once('listening', () => {
     console.log("Started 443");
 })
 
-ws.on('connection', (con) => {
+ws.once('connection', (con) => {
 
     console.log("User connected");
     let conMsg = {
@@ -81,7 +81,7 @@ function tratarMensaje(msg, con){
 
     }      
 
-    con.on("close", () => {
+    con.once("close", () => {
         console.log("disconnected");
         room.clients[con.name] = null;
         delete room.clients[con.name];
