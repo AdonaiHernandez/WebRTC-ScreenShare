@@ -31,7 +31,7 @@ ws.once('listening', () => {
     console.log("Started 443");
 })
 
-ws.once('connection', (con) => {
+ws.on('connection', (con) => {
 
     console.log("User connected");
     let conMsg = {

@@ -4,11 +4,14 @@ botonPeer = document.getElementById("button2");
 video = document.getElementById("video");
 nombre = document.getElementById("name");
 selector = document.getElementById("codecs");
+audioSelector = document.getElementById("audiCodecs");
 checkbox = document.getElementById("useCodec");
 
 preferedCodec = "video/VP9";
+preferedAudioCodec = "audio/opus";
 isChecked = false;
 availableCodecs = [];
+availableAudioCodecs = [];
 
 conexiones = {}
 
@@ -16,12 +19,14 @@ conexiones = {}
 window.onload = () => {
 
     let codecs = RTCRtpReceiver.getCapabilities('video').codecs;
+    let audioCodecs = RTCRtpReceiver.getCapabilities('audio').codecs;
 
     for (i = 0; i < codecs.length; i++ ){
         codecs[i]["payloadType"] = "dynamic";
     }
 
     availableCodecs = codecs;
+    availableAudioCodecs = audioCodecs;
 
     codecs.forEach((codec) => {
 
@@ -30,6 +35,16 @@ window.onload = () => {
         opcion.appendChild(document.createTextNode(codec.mimeType));
 
         selector.appendChild(opcion);
+
+    })
+
+    audioCodecs.forEach((codec) => {
+
+        let opcion = document.createElement("option");
+        opcion.setAttribute("value", codec.mimeType);
+        opcion.appendChild(document.createTextNode(codec.mimeType));
+
+        audioSelector.appendChild(opcion);
 
     })
 
@@ -47,7 +62,15 @@ selector.onchange = () => {
 
     valor = selector.value;
     preferedCodec = valor;
-    console.log(valor)
+
+
+}
+
+audioSelector.onchange = () => {
+
+    valor = selector.value;
+    preferedAudioCodec = valor;
+
 
 }
 
@@ -100,7 +123,8 @@ boton.onclick = async () => {
             height: 1080,
             maxWidth: 1920,
             maxHeight: 1080,
-            minFrameRate: 60
+            minFrameRate: 60,
+            maxFramerate: 60
         },
         audio: true
     });
@@ -353,20 +377,37 @@ function handleTrackEvent(event) {
 
 function forceVP9(actPeer){
 
-    let tcvr = actPeer.getTransceivers()[0];
-    if (!tcvr)
-        return
-    let codecs = RTCRtpReceiver.getCapabilities('video').codecs;
-    let vp9_codecs = [];
-    // iterate over supported codecs and pull out the codecs we want
-    for(let i = 0; i < codecs.length; i++){
-        if(codecs[i].mimeType == preferedCodec){
-            vp9_codecs.push(codecs[i]);
-        }
-    }
+    actPeer.getTransceivers().forEach(tcvr => {
 
-    if(tcvr.sender.track.kind != "audio" && tcvr.setCodecPreferences != undefined && isChecked){
-        tcvr.setCodecPreferences(vp9_codecs);
-    }
+        if (!tcvr)
+        return
+        let codecs = RTCRtpReceiver.getCapabilities('video').codecs;
+        let audios = RTCRtpReceiver.getCapabilities('audio').codecs;
+        
+        let vp9_codecs = [];
+        let newAudios = [];
+
+        for(let i = 0; i < codecs.length; i++){
+            if(codecs[i].mimeType == preferedCodec){
+                vp9_codecs.push(codecs[i]);
+            }
+        }
+
+        for(let i = 0; i < audios.length; i++){
+            if(audios[i].mimeType == preferedAudioCodec){
+                newAudios.push(audios[i]);
+            }
+        }
+
+        if(tcvr.sender.track.kind != "audio" && tcvr.setCodecPreferences != undefined && isChecked){
+            tcvr.setCodecPreferences(vp9_codecs);
+        }
+
+        if(tcvr.sender.track.kind == "audio"){
+            tcvr.setCodecPreferences(newAudios);
+        }
+
+    })
+
 
 }
