@@ -252,11 +252,13 @@ function recivirOferta({sdp, name, to}){
       .then((offer) => conexiones[name].setLocalDescription(offer))
       .then(() => {
         
+        console.log(conexiones[name].localDescription);
+        const actSDP  = conexiones[name].localDescription.sdp;
 
         msg = {
             type : 1,
             subtype: "answer",
-            sdp: conexiones[name].localDescription,
+            sdp: actSDP,
             name : nombre.value,
             to: to
         }
@@ -363,7 +365,7 @@ function forceVP9(actPeer){
         }
     }
 
-    if(tcvr.setCodecPreferences != undefined && isChecked){
+    if(tcvr.sender.track.kind != "audio" && tcvr.setCodecPreferences != undefined && isChecked){
         tcvr.setCodecPreferences(vp9_codecs);
     }
 
